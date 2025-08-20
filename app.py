@@ -41,8 +41,23 @@ def get_dns_info(domain):
         dns_results['MX'] = []
     # TXT record
     try:
-        dns_results['TXT'] = [r.to_text() for r in resolver.resolve(domain, 'TXT')]
-    except Exception:
+        txt_records = []
+        for r in resolver.resolve(domain, 'TXT'):
+            # r.strings is a tuple of byte strings, join and decode
+            if hasattr(r, 'strings'):
+                txt = ''.join([s.decode('utf-8') if isinstance(s, bytes) else str(s) for s in r.strings])
+            else:
+                txt = r.to_text().strip('"')
+            txt_records.append(txt)
+            print(f"Found TXT record: {txt}")  # Debug print
+        # Always put SPF record first if present
+        spf_records = [txt for txt in txt_records if txt.startswith('v=spf1')]
+        non_spf_records = [txt for txt in txt_records if not txt.startswith('v=spf1')]
+        ordered_txt = spf_records + non_spf_records
+        dns_results['TXT'] = ordered_txt
+        print(f"Final TXT records: {ordered_txt}")  # Debug print
+    except Exception as e:
+        print(f"Error getting TXT records: {str(e)}")  # Debug print
         dns_results['TXT'] = []
     # NS record
     try:
@@ -74,18 +89,31 @@ def get_whois_info(domain):
             status_list = [status]
         else:
             status_list = status
+        # Nameservers
+        nameservers = w.name_servers if hasattr(w, 'name_servers') and w.name_servers else []
+        # Expiry check
+        expired = False
+        from datetime import datetime
+        if expiration:
+            try:
+                exp_dt = expiration if isinstance(expiration, datetime) else datetime.strptime(str(expiration), "%Y-%m-%d %H:%M:%S")
+                expired = exp_dt < datetime.now()
+            except Exception:
+                expired = False
         whois_info = {
             "registrar": w.registrar if w.registrar else "Unknown",
             "expiration": str(expiration) if expiration else "Unknown",
             "statuses": status_list,
-            "raw": str(w.text) if hasattr(w, "text") and w.text else "",
+            "nameservers": nameservers,
+            "expired": expired,
         }
     except Exception:
         whois_info = {
             "registrar": "Unknown",
             "expiration": "Unknown",
             "statuses": [],
-            "raw": "",
+            "nameservers": [],
+            "expired": False,
         }
     return whois_info
 

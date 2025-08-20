@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <title>Domain Inspector</title>
     <style>
-        .dns-output {
-            font-size: 0.97em;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
-            font-weight: 400;
-        }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #fff;
@@ -62,7 +56,7 @@
         .panel {
             flex: 1 1 0;
             min-width: 220px;
-            background: #f9fafc;
+            background: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.07);
             border: 1px solid #e0e0e0;
@@ -99,7 +93,6 @@
             padding: 0.5em;
             scrollbar-width: thin;
             scrollbar-color: #bbb #f9fafc;
-            position: relative;
         }
         .long-txt-record::-webkit-scrollbar {
             width: 6px;
@@ -135,7 +128,7 @@
     <div class="title">Domain Inspector</div>
     <form method="post">
         <div class="input-row">
-            <input type="text" id="domain" name="domain" placeholder="example.com or 8.8.8.8" value="{{ domain if domain else '' }}">
+            <input type="text" id="domain" name="domain" placeholder="example.com or 8.8.8.8" value="{{ domain }}">
             <button type="submit">Inspect</button>
         </div>
     </form>
@@ -148,86 +141,104 @@
                     <tbody>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">A</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 0.4em; vertical-align: top;">
                                 {% if domain_info.dns.A and domain_info.dns.A|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.A | join(' ') }}</span>
+                                    <span style="font-size:0.95em; font-family:inherit; font-weight:normal; white-space:nowrap;">{{ domain_info.dns.A | join(' ') }}</span>
                                 {% else %}
-                                    <span class="dns-output">No A records found</span>
+                                    <span class="text-muted" style="font-size:0.95em; font-family:inherit; font-weight:normal;">No A records found</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">WWW</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 0.4em; vertical-align: top;">
                                 {% if domain_info.dns.WWW_A and domain_info.dns.WWW_A|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.WWW_A | join(' ') }}</span>
+                                    <span style="font-size:0.95em; font-family:inherit; font-weight:normal; white-space:nowrap;">{{ domain_info.dns.WWW_A | join(' ') }}</span>
                                 {% else %}
-                                    <span class="dns-output">No WWW A records found</span>
+                                    <span class="text-muted" style="font-size:0.95em; font-family:inherit; font-weight:normal;">No WWW A records found</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">IPv6</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 0.4em; vertical-align: top;">
                                 {% if domain_info.dns.AAAA and domain_info.dns.AAAA|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.AAAA | join(' ') }}</span>
+                                    <span style="font-size:0.95em; font-family:inherit; font-weight:normal; white-space:nowrap;">{{ domain_info.dns.AAAA | join(' ') }}</span>
                                 {% else %}
-                                    <span class="dns-output">No IPv6 Found</span>
+                                    <span class="text-muted" style="font-size:0.95em; font-family:inherit; font-weight:normal;">No IPv6 Found</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">MX</td>
+                            <td style="padding: 0.25em 0.4em;">
+                                {% if domain_info.dns.MX and domain_info.dns.MX|length > 0 %}
+                                    <div style="font-size:0.87em;">
+                                        {% for mx in domain_info.dns.MX %}
+                                            <div style="white-space:nowrap; overflow-x:auto; max-width:100%; scrollbar-width:none; -ms-overflow-style:none;">{{ mx }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">No MX records found</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">TXT</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
-                                {% if domain_info.dns.TXT and domain_info.dns.TXT|length > 0 %}
-                                    <div class="long-txt-record">
-                                        {% for txt in domain_info.dns.TXT %}
-                                            <div class="dns-output" style="margin-bottom:0.3em; white-space:nowrap; overflow-x:auto; text-overflow:ellipsis;">{{ txt }}</div>
+                            <td style="padding: 0.25em 0.4em; vertical-align: top;">
+                                {% if domain_info.dns.TXT is defined and domain_info.dns.TXT|length > 0 %}
+                                    <div style="max-width: 100%; max-height: 5.5em; overflow-y: auto; overflow-x: hidden; white-space: normal; scrollbar-width: thin; -ms-overflow-style: none;">
+                                        {% set txts = domain_info.dns.TXT %}
+                                        {% set spf = None %}
+                                        {% set non_spf = [] %}
+                                        {% for txt in txts %}
+                                            {% if txt.startswith('v=spf1') and spf is none %}
+                                                {% set spf = txt %}
+                                            {% else %}
+                                                {% set _ = non_spf.append(txt) %}
+                                            {% endif %}
                                         {% endfor %}
-                                        {% if domain_info.dns.TXT|length > 4 %}
-                                            <div style="position:absolute; left:0; right:0; bottom:0; height:2em; pointer-events:none; background:linear-gradient(to bottom, rgba(249,250,252,0) 0%, rgba(249,250,252,0.95) 100%);"></div>
+                                        {% set shown = 0 %}
+                                        {% if spf %}
+                                            <div style="font-size:0.87em; background:none; border:none; white-space:nowrap; overflow-x:auto; text-overflow:ellipsis;">{{ spf }}</div>
+                                            {% set shown = shown + 1 %}
+                                        {% endif %}
+                                        {% for txt in non_spf %}
+                                            {% if shown < 4 %}
+                                                <div style="font-size:0.87em; background:none; border:none; white-space:normal; word-break:break-all;">{{ txt }}</div>
+                                                {% set shown = shown + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if txts|length > (4 if spf else 3) %}
+                                            <div style="font-size:0.87em; color:#888;">...and {{ txts|length - (4 if spf else 3) }} more (scroll to view)</div>
                                         {% endif %}
                                     </div>
                                 {% else %}
-                                    <span class="dns-output">No TXT records found</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">MX</td>
-                                <td style="padding: 0.25em 1.2em;">
-                                {% if domain_info.dns.MX and domain_info.dns.MX|length > 0 %}
-                                    <div>
-                                        {% for mx in domain_info.dns.MX %}
-                                            <div class="dns-output" style="white-space:nowrap; overflow-x:auto; max-width:100%; scrollbar-width:none; -ms-overflow-style:none;">{{ mx }}</div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <span class="dns-output">No MX records found</span>
+                                    <span class="text-muted">No TXT records found</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">NS</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 0.4em; vertical-align: top;">
                                 {% if domain_info.dns.NS and domain_info.dns.NS|length > 0 %}
-                                    <div>
+                                    <div style="font-size:0.95em; font-family:inherit; font-weight:normal;">
                                         {% for ns in domain_info.dns.NS %}
-                                            <div class="dns-output" style="white-space:nowrap;">{{ ns }}</div>
+                                            <div style="white-space:nowrap;">{{ ns }}</div>
                                         {% endfor %}
                                     </div>
                                 {% else %}
-                                    <span class="dns-output">No NS records found</span>
+                                    <span class="text-muted" style="font-size:0.95em; font-family:inherit; font-weight:normal;">No NS records found</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">DNSSEC</td>
-                                <td style="word-break:break-all; padding: 0.25em 1.2em;">
+                            <td style="word-break:break-all; padding: 0.25em 0.4em;">
                                 {% if domain_info.dns.dnssec %}
-                                    <span class="dns-output">Enabled</span>
+                                    <span class="badge bg-success">Enabled</span>
                                 {% else %}
-                                    <span class="dns-output">Not enabled</span>
+                                    <span class="badge bg-danger">Not enabled</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -241,22 +252,27 @@
         <div class="panel">
             <div class="panel-header whois">WHOIS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {% if domain_info and domain_info.whois %}
-                    <div class="dns-output">Registrar: {{ domain_info.whois.registrar }}</div>
-                    {% if domain_info.whois.nameservers %}
-                        <div class="dns-output">Nameservers:
-                            {% for ns in domain_info.whois.nameservers %}
-                                <span class="dns-output" style="display:block; margin-left:1em;">{{ ns }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    {% set hold_statuses = domain_info.whois.statuses | select('in', ['clientHold', 'serverHold']) | list %}
-                    {% if hold_statuses and hold_statuses|length > 0 %}
-                        <div class="dns-output" style="color:#d32f2f;">Status: {{ hold_statuses | join(', ') }}</div>
-                    {% endif %}
-                    {% if domain_info.whois.expiration and domain_info.whois.expired %}
-                        <div class="dns-output" style="color:#d32f2f;">Expired: {{ domain_info.whois.expiration }}</div>
-                    {% endif %}
+                {% if domain_info %}
+                    <ul style="padding-left:1em;">
+                        <li><b>Registrar:</b> {{ domain_info.whois.registrar }}</li>
+                        <li><b>Expiration Date:</b> {{ domain_info.whois.expiration }}</li>
+                        <li>
+                            <b>Status:</b>
+                            {% if domain_info.whois.statuses and domain_info.whois.statuses|length > 0 %}
+                                <ul>
+                                    {% for s in domain_info.whois.statuses %}
+                                        <li>{{ s }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">No status info</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    <details>
+                        <summary>Raw WHOIS</summary>
+                        <pre class="small">{{ domain_info.whois.raw }}</pre>
+                    </details>
                 {% else %}
                     <div class="text-muted">No WHOIS info yet.</div>
                 {% endif %}
@@ -265,14 +281,19 @@
         <div class="panel">
             <div class="panel-header curl">CURL GET Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {% if curl_info and curl_info.headers %}
-                    <div style="background:#f9fafc; border-radius:4px; padding:0.5em; font-size:0.97em; color:#333; width:100%; box-sizing:border-box;">
-                        {% for line in curl_info.headers.split('\n') %}
-                            <div class="dns-output" style="white-space:nowrap; overflow-x:hidden; text-overflow:ellipsis;">{{ line }}</div>
-                        {% endfor %}
-                    </div>
+                {% if curl_info %}
+                <details>
+                    <summary>HTTP Response Headers</summary>
+                    <pre class="small">{{ curl_info.headers }}</pre>
+                </details>
+                <h6 class="mt-3">Analysis</h6>
+                <ul>
+                    {% for a in curl_info.analysis %}
+                        <li {% if 'Missing' in a %}style="color:#d32f2f;"{% endif %}>{{ a }}</li>
+                    {% endfor %}
+                </ul>
                 {% else %}
-                    <div class="text-muted">No CURL info yet.</div>
+                <div class="text-muted">No CURL info yet.</div>
                 {% endif %}
             </div>
         </div>
