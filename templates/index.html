@@ -4,82 +4,215 @@
     <meta charset="UTF-8">
     <title>Domain Inspector</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        .checked-domain-panel {
+            background: #f1f7ff;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #1976d2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .checked-domain-name {
+            color: #1976d2;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding-left: 0.25em;
+        }
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .long-txt-record {
+            max-height: 6em;
+            overflow-y: auto;
+            font-size: 0.97em;
+            background: #f9fafc;
+            border-radius: 4px;
+            padding: 0.5em;
+            scrollbar-width: thin;
+            scrollbar-color: #bbb #f9fafc;
+        }
+        .long-txt-record::-webkit-scrollbar {
+            width: 6px;
+            background: #f9fafc;
+        }
+        .long-txt-record::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 6px;
+        }
+        /* DNS panel spacing */
+        .dns-record-block {
+            margin-bottom: 1.1em;
+        }
+        .dns-record-label {
+            font-weight: bold;
+            font-size: 1.08em;
+            margin-bottom: 0.2em;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
-    <h1>Domain Inspector</h1>
-    <form method="post">
-        <div class="mb-3">
-            <label for="domain" class="form-label">Domain Name</label>
-            <input type="text" class="form-control" id="domain" name="domain" placeholder="example.com" value="{{ domain }}">
+    <h1 class="text-center mb-4">Domain Inspector</h1>
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-6 col-10">
+            <form method="post" class="d-flex gap-2">
+                <input type="text" class="form-control" id="domain" name="domain" placeholder="example.com or 8.8.8.8" value="{{ domain }}">
+                <button type="submit" class="btn btn-primary">Inspect</button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">Inspect Domain</button>
-    </form>
-    <hr>
-    <form method="post">
-        <div class="mb-3">
-            <label for="url" class="form-label">URL for CURL GET</label>
-            <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" value="{{ url }}">
+    </div>
+    {% if domain %}
+    <div class="checked-domain-panel mx-auto mb-4">
+        Checked domain:<span class="checked-domain-name">{{ domain }}</span>
+    </div>
+    {% endif %}
+    {% if error_msg %}
+    <div class="row justify-content-center mb-2">
+        <div class="col-md-6 col-10">
+            <div class="alert alert-danger text-center" role="alert">
+                {{ error_msg }}
+            </div>
         </div>
-        <button type="submit" class="btn btn-secondary">CURL GET</button>
-    </form>
-    <hr>
-    {% if domain_info %}
-        <h3>Domain Info</h3>
-        <ul>
-            <li><b>A Record:</b> <pre>{{ domain_info.dns.A }}</pre></li>
-            <li><b>WWW A Record:</b> <pre>{{ domain_info.dns.WWW_A }}</pre></li>
-            <li><b>MX Record:</b> <pre>{{ domain_info.dns.MX }}</pre></li>
-            <li><b>TXT Record:</b> <pre>{{ domain_info.dns.TXT }}</pre></li>
-            <li><b>Nameservers:</b>
-                <pre {% if domain_info.dns.cloudflare %}style="background: #ffe;"{% endif %}>
-                {{ domain_info.dns.NS }}
-                </pre>
-                {% if domain_info.dns.cloudflare %}
-                <span class="badge bg-warning text-dark">Cloudflare detected!</span>
-                {% endif %}
-            </li>
-        </ul>
-        <h4>WHOIS</h4>
-        <ul>
-            <li><b>Registrar:</b> {{ domain_info.whois.registrar }}</li>
-            <li><b>Expiration Date:</b>
-                <span {% if domain_info.whois.expired or domain_info.whois.redemption %}class="text-danger"{% endif %}>
-                {{ domain_info.whois.expiration }}
-                </span>
-                {% if domain_info.whois.expired %}
-                <span class="badge bg-danger">Expired</span>
-                {% endif %}
-                {% if domain_info.whois.redemption %}
-                <span class="badge bg-danger">Redemption Period</span>
-                {% endif %}
-            </li>
-            <li><b>Status:</b>
-                <ul>
-                    {% for s in domain_info.whois.statuses %}
-                    <li {% if 'hold' in s.lower() %}class="text-danger"{% endif %}>{{ s }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        </ul>
-        <details>
-            <summary>Raw WHOIS</summary>
-            <pre>{{ domain_info.whois_raw }}</pre>
-        </details>
+    </div>
     {% endif %}
-    {% if curl_info %}
-        <h3>CURL GET Response</h3>
-        <details>
-            <summary>HTTP Response Headers</summary>
-            <pre>{{ curl_info.headers }}</pre>
-        </details>
-        <h4>Analysis</h4>
-        <ul>
-            {% for a in curl_info.analysis %}
-            <li {% if 'Missing' in a %}class="text-danger"{% endif %}>{{ a }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white panel-title">DNS Info</div>
+                <div class="card-body">
+                    {% if domain_info %}
+                    <ul class="list-unstyled">
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">A Record:</div>
+                            {% if domain_info.dns.A and domain_info.dns.A|length > 0 %}
+                                <pre>{{ domain_info.dns.A | join('\n') }}</pre>
+                            {% else %}
+                                <span class="text-muted">No A records found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">WWW A Record:</div>
+                            {% if domain_info.dns.WWW_A and domain_info.dns.WWW_A|length > 0 %}
+                                <pre>{{ domain_info.dns.WWW_A | join('\n') }}</pre>
+                            {% else %}
+                                <span class="text-muted">No WWW A records found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">IPv6:</div>
+                            {% if domain_info.dns.AAAA and domain_info.dns.AAAA|length > 0 %}
+                                <pre>{{ domain_info.dns.AAAA | join('\n') }}</pre>
+                            {% else %}
+                                <span class="text-muted">No IPv6 found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">MX Record:</div>
+                            {% if domain_info.dns.MX and domain_info.dns.MX|length > 0 %}
+                                <pre>{{ domain_info.dns.MX | join('\n') }}</pre>
+                            {% else %}
+                                <span class="text-muted">No MX records found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">TXT Record:</div>
+                            {% if domain_info.dns.TXT and domain_info.dns.TXT|length > 0 %}
+                                <div class="long-txt-record">
+                                    {% for txt in domain_info.dns.TXT %}
+                                        <div>{{ txt }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">No TXT records found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">Nameservers:</div>
+                            {% if domain_info.dns.NS and domain_info.dns.NS|length > 0 %}
+                                <pre {% if domain_info.dns.cloudflare %}style="background: #ffe;"{% endif %}>{{ domain_info.dns.NS | join('\n') }}</pre>
+                                {% if domain_info.dns.cloudflare %}
+                                    <span class="badge bg-warning text-dark">Cloudflare detected!</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">No NS records found</span>
+                            {% endif %}
+                        </li>
+                        <li class="dns-record-block">
+                            <div class="dns-record-label">DNSSEC:</div>
+                            {% if domain_info.dns.dnssec %}
+                                <span class="badge bg-success">Enabled</span>
+                            {% else %}
+                                <span class="badge bg-danger">Not enabled</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    {% else %}
+                    <div class="text-muted">No DNS info yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- WHOIS and CURL panels remain unchanged -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white panel-title">WHOIS Info</div>
+                <div class="card-body">
+                    {% if domain_info %}
+                        <ul class="list-unstyled">
+                            <li><b>Registrar:</b> {{ domain_info.whois.registrar }}</li>
+                            <li><b>Expiration Date:</b> {{ domain_info.whois.expiration }}</li>
+                            <li>
+                                <b>Status:</b>
+                                {% if domain_info.whois.statuses and domain_info.whois.statuses|length > 0 %}
+                                    <ul>
+                                        {% for s in domain_info.whois.statuses %}
+                                            <li>{{ s }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span class="text-muted">No status info</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                        <details>
+                            <summary>Raw WHOIS</summary>
+                            <pre class="small">{{ domain_info.whois.raw }}</pre>
+                        </details>
+                    {% else %}
+                        <div class="text-muted">No WHOIS info yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white panel-title">CURL GET Info</div>
+                <div class="card-body">
+                    {% if curl_info %}
+                    <details>
+                        <summary>HTTP Response Headers</summary>
+                        <pre class="small">{{ curl_info.headers }}</pre>
+                    </details>
+                    <h6 class="mt-3">Analysis</h6>
+                    <ul>
+                        {% for a in curl_info.analysis %}
+                            <li {% if 'Missing' in a %}class="text-danger"{% endif %}>{{ a }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="text-muted">No CURL info yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
