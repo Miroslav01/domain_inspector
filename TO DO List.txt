@@ -1,0 +1,20 @@
+TO DO List
+
+In DNS Panel
+
+- If there is more than one IP as output in A rec
+- If there is more that one IP in www 
+
+In WHOIS
+
+- Some margin between Registrar and Nameservers
+- check if the NS records and Nameservers are correct. Warning if they are different
+- add raw output as clickable arrow
+
+In CURL
+
+- Check for various Headers
+  Coockie
+  Security
+  Cache
+
