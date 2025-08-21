@@ -1,15 +1,17 @@
 TO DO List
 
+- Tell Copilot to remember the current state BEFORE we start working on the new improvements
+
 In DNS Panel
 
-- If there is more than one IP as output in A rec
-- If there is more that one IP in www 
+- If there is more than one IP as output in A rec - DONE
+- If there is more that one IP in www - DONE
 
 In WHOIS
 
-- Some margin between Registrar and Nameservers
+- Some margin between Registrar and Nameservers - DONE
 - check if the NS records and Nameservers are correct. Warning if they are different
-- add raw output as clickable arrow
+- add raw output as clickable arrow - DONE
 
 In CURL
 
@@ -18,3 +20,21 @@ In CURL
   Security
   Cache
 
+In Analysis
+
+- If there is NO MX record => point output
+- If there is NO SPF => point out
+- In case there is IPv6 and the domain is pointed towards SG
+- In case there is DNSSEC and the domain is using SG nameservers or pointed by A records
+- In case there are 4 IPs => SG CDN
+- Existing HTTP Coockie-Set Header => no dynamic Cache
+- Check for Security Headers
+
+
+IN THE FUTURE
+
+- separate check for Email related DNS records
+- check for CNAME
+- show the visitors IP and UA
+- check for the domain TLD - .it, .de, .bg ... 
+- check for the IP, whois of the IP, owner, location, etc. 

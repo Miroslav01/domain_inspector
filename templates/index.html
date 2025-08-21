@@ -148,9 +148,13 @@
                     <tbody>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">A</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 1.2em; vertical-align: top;">
                                 {% if domain_info.dns.A and domain_info.dns.A|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.A | join(' ') }}</span>
+                                    <div>
+                                        {% for ip in domain_info.dns.A[:4] %}
+                                            <div class="dns-output" style="white-space:nowrap;">{{ ip }}</div>
+                                        {% endfor %}
+                                    </div>
                                 {% else %}
                                     <span class="dns-output">No A records found</span>
                                 {% endif %}
@@ -158,9 +162,13 @@
                         </tr>
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">WWW</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 1.2em; vertical-align: top;">
                                 {% if domain_info.dns.WWW_A and domain_info.dns.WWW_A|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.WWW_A | join(' ') }}</span>
+                                    <div>
+                                        {% for ip in domain_info.dns.WWW_A[:4] %}
+                                            <div class="dns-output" style="white-space:nowrap;">{{ ip }}</div>
+                                        {% endfor %}
+                                    </div>
                                 {% else %}
                                     <span class="dns-output">No WWW A records found</span>
                                 {% endif %}
@@ -242,9 +250,9 @@
             <div class="panel-header whois">WHOIS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
                 {% if domain_info and domain_info.whois %}
-                    <div class="dns-output">Registrar: {{ domain_info.whois.registrar }}</div>
+                    <div class="dns-output" style="margin-bottom:1em;">Registrar: {{ domain_info.whois.registrar }}</div>
                     {% if domain_info.whois.nameservers %}
-                        <div class="dns-output">Nameservers:
+                        <div class="dns-output" style="margin-bottom:1em;">Nameservers:
                             {% for ns in domain_info.whois.nameservers %}
                                 <span class="dns-output" style="display:block; margin-left:1em;">{{ ns }}</span>
                             {% endfor %}
@@ -256,6 +264,14 @@
                     {% endif %}
                     {% if domain_info.whois.expiration and domain_info.whois.expired %}
                         <div class="dns-output" style="color:#d32f2f;">Expired: {{ domain_info.whois.expiration }}</div>
+                    {% endif %}
+                    {% if domain_info.whois.raw %}
+                        <details style="margin-top:1.5em;">
+                            <summary style="font-size:1.08em; font-weight:500; cursor:pointer; color:#222; padding:0.2em 0;">Raw WHOIS</summary>
+                            <div class="dns-output" style="margin-top:0.7em; background:#fff; border-radius:4px; padding:0.5em; font-size:0.97em; color:#222; max-height:12em; overflow-y:auto; white-space:pre-wrap; border:1px solid #e0e0e0;">
+                                {{ domain_info.whois.raw }}
+                            </div>
+                        </details>
                     {% endif %}
                 {% else %}
                     <div class="text-muted">No WHOIS info yet.</div>

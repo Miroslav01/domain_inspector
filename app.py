@@ -100,13 +100,14 @@ def get_whois_info(domain):
                 expired = exp_dt < datetime.now()
             except Exception:
                 expired = False
-        whois_info = {
-            "registrar": w.registrar if w.registrar else "Unknown",
-            "expiration": str(expiration) if expiration else "Unknown",
-            "statuses": status_list,
-            "nameservers": nameservers,
-            "expired": expired,
-        }
+            whois_info = {
+                "registrar": w.registrar if w.registrar else "Unknown",
+                "expiration": str(expiration) if expiration else "Unknown",
+                "statuses": status_list,
+                "nameservers": nameservers,
+                "expired": expired,
+                "raw": str(w.text) if hasattr(w, "text") and w.text else "",
+            }
     except Exception:
         whois_info = {
             "registrar": "Unknown",
