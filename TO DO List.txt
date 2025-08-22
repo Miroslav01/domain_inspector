@@ -2,10 +2,25 @@ TO DO List
 
 - Tell Copilot to remember the current state BEFORE we start working on the new improvements
 
+- In the beggining the logic shold made a check if the input is a domain name or an IP and then IF
+it is a domain name it proceeds with DNS, WHOIS and CURL. 
+
+- Subcase IF it is a subdomain 
+
+- IF it is an IP some still DNS, WHOIS and CURL but some checks are NOT made !!!
+
+
+- good python and coding practices
+- add comments !!! in all of the files, the .py and the .html files - DONE 
+
+- import AI Model to generate possible replays
+
 In DNS Panel
 
 - If there is more than one IP as output in A rec - DONE
 - If there is more that one IP in www - DONE
+
+- DNS propagation check; Check against Google DNS and agains OpenDNS, maybe against Cloudflare DNS
 
 In WHOIS
 
@@ -16,7 +31,7 @@ In WHOIS
 In CURL
 
 - Check for various Headers
-  Coockie
+  Set-Cookie
   Security
   Cache
 
@@ -30,11 +45,14 @@ In Analysis
 - Existing HTTP Coockie-Set Header => no dynamic Cache
 - Check for Security Headers
 
+- check if Cloudflare, Sucuri, BunnyCDN, SiteGround and other popular providers
+- check can be via IP or via HTTP header returned
+
 
 IN THE FUTURE
 
 - separate check for Email related DNS records
 - check for CNAME
-- show the visitors IP and UA
+- show the visitors IP, location, provider and UA
 - check for the domain TLD - .it, .de, .bg ... 
 - check for the IP, whois of the IP, owner, location, etc. 

@@ -1,3 +1,6 @@
+# Domain Inspector Flask App
+# Provides DNS, WHOIS, CURL, and security analysis for domains and IPv4 addresses
+
 from flask import Flask, render_template, request
 import re
 import dns.resolver
@@ -156,6 +159,9 @@ def index():
     curl_info = None
     domain = ""
     error_msg = None
+    analysis_dns = []
+    has_ipv6 = False
+    has_dnssec = False
     if request.method == "POST":
         domain = request.form.get("domain", "").strip()
         input_type = is_domain_or_ipv4(domain)
@@ -167,6 +173,13 @@ def index():
                 whois_info = get_whois_info(domain)
                 headers = get_curl_headers(domain)
                 analysis = analyze_headers(headers)
+                # Analysis for IPv6 and DNSSEC
+                if dns_data.get('AAAA') and len(dns_data['AAAA']) > 0:
+                    analysis_dns.append("IPv6 is enabled for this domain.")
+                    has_ipv6 = True
+                if dns_data.get('dnssec'):
+                    analysis_dns.append("DNSSEC is enabled for this domain.")
+                    has_dnssec = True
                 domain_info = {
                     "dns": dns_data,
                     "whois": whois_info,
@@ -179,7 +192,10 @@ def index():
         domain_info=domain_info,
         curl_info=curl_info,
         domain=domain,
-        error_msg=error_msg
+        error_msg=error_msg,
+        analysis_dns=analysis_dns,
+        has_ipv6=has_ipv6,
+        has_dnssec=has_dnssec
     )
 
 if __name__ == "__main__":

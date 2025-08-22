@@ -1,0 +1,220 @@
+.dns-output {
+    /* DNS output text styling */
+    font-size: 0.97em;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #333;
+    font-weight: 400;
+}
+body {
+    /* Main page font and background */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    /* Main container layout */
+    margin: 0 auto;
+    padding: 24px 0 0 0;
+}
+.title {
+    /* App title styling */
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+.input-row {
+    /* Input row layout */
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+.input-row input[type="text"] {
+    /* Domain input field styling */
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 350px;
+}
+.input-row button {
+    /* Inspect button styling */
+    font-size: 1.1rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.panels-row {
+    /* Panels row layout for horizontal arrangement */
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100vw;
+    padding: 0 2vw;
+    box-sizing: border-box;
+}
+.panel {
+    /* Individual panel styling */
+    flex: 1 1 0;
+    min-width: 220px;
+    background: #f9fafc;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.panel-header {
+    /* Panel header styling */
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+.panel-header.dns { background: #1976d2; color: #fff; } /* DNS panel header */
+.panel-header.whois { background: #757575; color: #fff; } /* WHOIS panel header */
+.panel-header.curl { background: #222; color: #fff; } /* CURL panel header */
+.panel-header.analysis { background: #00cfff; color: #222; } /* Analysis panel header */
+.panel-body {
+    /* Panel body styling */
+    padding: 1rem;
+    font-size: 1.05rem;
+    flex: 1;
+}
+.dns-record-label {
+    /* DNS record label styling */
+    font-weight: bold;
+    font-size: 1em;
+    margin-bottom: 0.15em;
+}
+.long-txt-record {
+    /* Long TXT record block styling */
+    max-height: 6em;
+    overflow-y: auto;
+    font-size: 0.97em;
+    background: #f9fafc;
+    border-radius: 4px;
+    padding: 0.5em;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f9fafc;
+    position: relative;
+}
+.long-txt-record::-webkit-scrollbar {
+    /* Custom scrollbar for TXT record */
+    width: 6px;
+    background: #f9fafc;
+}
+.long-txt-record::-webkit-scrollbar-thumb {
+    /* Custom scrollbar thumb for TXT record */
+    background: #bbb;
+    border-radius: 6px;
+}
+.checked-domain-name {
+    /* Checked domain name styling */
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding-left: 0.25em;
+}
+@media (max-width: 1100px) {
+    /* Responsive: reduce gap between panels on medium screens */
+    .panels-row {
+        gap: 1rem;
+    }
+}
+@media (max-width: 900px) {
+    /* Responsive: stack panels vertically on small screens */
+    .panels-row {
+        flex-direction: column;
+        gap: 2rem;
+        width: 100%;
+        padding: 0;
+    }
+}
+/* WHOIS output blocks */
+.whois-block {
+    /* WHOIS output block styling */
+    margin-bottom: 1em;
+}
+.whois-ns {
+    /* WHOIS nameserver styling */
+    display: block;
+    margin-left: 1em;
+}
+.whois-status {
+    /* WHOIS status styling */
+    color: #d32f2f;
+}
+.whois-details {
+    /* WHOIS details block styling */
+    margin-top: 1.5em;
+}
+.whois-summary {
+    /* WHOIS summary styling */
+    font-size: 1.08em;
+    font-weight: 500;
+    cursor: pointer;
+    color: #222;
+    padding: 0.2em 0;
+}
+.whois-raw {
+    /* Raw WHOIS output styling */
+    margin-top: 0.7em;
+    background: #fff;
+    border-radius: 4px;
+    padding: 0.5em;
+    font-size: 0.97em;
+    color: #222;
+    max-height: 12em;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    border: 1px solid #e0e0e0;
+}
+/* CURL output blocks */
+.curl-output-block {
+    /* CURL output block styling */
+    background: var(--primary-bg);
+    border-radius: 4px;
+    padding: 0.5em;
+    font-size: 0.97em;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+}
+.curl-line {
+    /* Individual CURL header line styling */
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+/* Analysis output blocks */
+.analysis-details {
+    /* Analysis details block styling */
+    margin-top: 0.5em;
+}
+.analysis-summary {
+    /* Analysis summary styling */
+    font-size: 1.08em;
+    font-weight: 500;
+    cursor: pointer;
+    color: #222;
+    padding: 0.2em 0;
+}
+.analysis-output-block {
+    /* Analysis output block styling */
+    padding: 0.1em 0.2em;
+}
+.analysis-line {
+    /* Individual analysis output line styling */
+    margin-bottom: 0.1em;
+    padding: 0;
+    color: #222;
+}

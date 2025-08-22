@@ -3,149 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Domain Inspector</title>
-    <style>
-        .dns-output {
-            font-size: 0.97em;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
-            font-weight: 400;
-        }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #fff;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            margin: 0 auto;
-            padding: 24px 0 0 0;
-            /* max-width removed for full width */
-        }
-        .title {
-            text-align: center;
-            font-size: 2.8rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-        .input-row {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-        }
-        .input-row input[type="text"] {
-            font-size: 1.1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            width: 350px;
-        }
-        .input-row button {
-            font-size: 1.1rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: 6px;
-            border: none;
-            background: #1976d2;
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .panels-row {
-            display: flex;
-            gap: 2rem;
-            justify-content: space-between;
-            align-items: flex-start;
-            width: 100vw;
-            padding: 0 2vw;
-            box-sizing: border-box;
-        }
-        .panel {
-            flex: 1 1 0;
-            min-width: 220px;
-            background: #f9fafc;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            border: 1px solid #e0e0e0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .panel-header {
-            font-size: 1.25rem;
-            font-weight: 600;
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .panel-header.dns { background: #1976d2; color: #fff; }
-        .panel-header.whois { background: #757575; color: #fff; }
-        .panel-header.curl { background: #222; color: #fff; }
-        .panel-header.analysis { background: #00cfff; color: #222; }
-        .panel-body {
-            padding: 1rem;
-            font-size: 1.05rem;
-            flex: 1;
-        }
-        .dns-record-label {
-            font-weight: bold;
-            font-size: 1em;
-            margin-bottom: 0.15em;
-        }
-        .long-txt-record {
-            max-height: 6em;
-            overflow-y: auto;
-            font-size: 0.97em;
-            background: #f9fafc;
-            border-radius: 4px;
-            padding: 0.5em;
-            scrollbar-width: thin;
-            scrollbar-color: #bbb #f9fafc;
-            position: relative;
-        }
-        .long-txt-record::-webkit-scrollbar {
-            width: 6px;
-            background: #f9fafc;
-        }
-        .long-txt-record::-webkit-scrollbar-thumb {
-            background: #bbb;
-            border-radius: 6px;
-        }
-        .checked-domain-name {
-            color: #fff;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding-left: 0.25em;
-        }
-        @media (max-width: 1100px) {
-            .panels-row {
-                gap: 1rem;
-            }
-        }
-        @media (max-width: 900px) {
-            .panels-row {
-                flex-direction: column;
-                gap: 2rem;
-                width: 100%;
-                padding: 0;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<!-- Main container for Domain Inspector UI -->
 <div class="container">
+    <!-- App Title -->
     <div class="title">Domain Inspector</div>
+    <!-- Domain input form -->
     <form method="post">
-        <div class="input-row">
+    <div class="input-row">
             <input type="text" id="domain" name="domain" placeholder="example.com or 8.8.8.8" value="{{ domain if domain else '' }}">
             <button type="submit">Inspect</button>
         </div>
     </form>
+    <!-- Panels row: DNS, WHOIS, CURL, Analysis -->
     <div class="panels-row">
-        <div class="panel">
+    <!-- DNS Info Panel -->
+    <div class="panel">
             <div class="panel-header dns">DNS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {% if domain_info %}
+                {# DNS info table #}
+                {% if domain_info and domain_info.dns %}
                 <table style="width:100%; border-collapse:collapse; font-size:0.89em;">
                     <tbody>
+                        <!-- DNS A Record Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">A</td>
                             <td style="padding: 0.25em 1.2em; vertical-align: top;">
@@ -160,6 +42,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNS WWW A Record Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">WWW</td>
                             <td style="padding: 0.25em 1.2em; vertical-align: top;">
@@ -174,6 +57,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNS IPv6 Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">IPv6</td>
                                 <td style="padding: 0.25em 1.2em; vertical-align: top;">
@@ -184,6 +68,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNS TXT Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">TXT</td>
                                 <td style="padding: 0.25em 1.2em; vertical-align: top;">
@@ -201,6 +86,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNS MX Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">MX</td>
                                 <td style="padding: 0.25em 1.2em;">
@@ -215,6 +101,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNS NS Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">NS</td>
                                 <td style="padding: 0.25em 1.2em; vertical-align: top;">
@@ -229,6 +116,7 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <!-- DNSSEC Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">DNSSEC</td>
                                 <td style="word-break:break-all; padding: 0.25em 1.2em;">
@@ -241,16 +129,21 @@
                         </tr>
                     </tbody>
                 </table>
-                {% else %}
+            {% else %}
+                <!-- No DNS info message -->
                 <div class="text-muted">No DNS info yet.</div>
-                {% endif %}
+            {% endif %}
             </div>
         </div>
-        <div class="panel">
+    <!-- WHOIS Info Panel -->
+    <div class="panel">
             <div class="panel-header whois">WHOIS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
+                {# WHOIS info block #}
                 {% if domain_info and domain_info.whois %}
+                    <!-- Registrar info -->
                     <div class="dns-output" style="margin-bottom:1em;">Registrar: {{ domain_info.whois.registrar }}</div>
+                    <!-- Nameservers info -->
                     {% if domain_info.whois.nameservers %}
                         <div class="dns-output" style="margin-bottom:1em;">Nameservers:
                             {% for ns in domain_info.whois.nameservers %}
@@ -258,13 +151,17 @@
                             {% endfor %}
                         </div>
                     {% endif %}
+                    {# Hold status logic #}
                     {% set hold_statuses = domain_info.whois.statuses | select('in', ['clientHold', 'serverHold']) | list %}
+                    <!-- Domain hold status -->
                     {% if hold_statuses and hold_statuses|length > 0 %}
                         <div class="dns-output" style="color:#d32f2f;">Status: {{ hold_statuses | join(', ') }}</div>
                     {% endif %}
+                    <!-- Expired domain info -->
                     {% if domain_info.whois.expiration and domain_info.whois.expired %}
                         <div class="dns-output" style="color:#d32f2f;">Expired: {{ domain_info.whois.expiration }}</div>
                     {% endif %}
+                    <!-- Raw WHOIS details -->
                     {% if domain_info.whois.raw %}
                         <details style="margin-top:1.5em;">
                             <summary style="font-size:1.08em; font-weight:500; cursor:pointer; color:#222; padding:0.2em 0;">Raw WHOIS</summary>
@@ -274,28 +171,56 @@
                         </details>
                     {% endif %}
                 {% else %}
+                    <!-- No WHOIS info message -->
                     <div class="text-muted">No WHOIS info yet.</div>
                 {% endif %}
             </div>
         </div>
-        <div class="panel">
+    <!-- CURL Info Panel -->
+    <div class="panel">
             <div class="panel-header curl">CURL GET Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
+                {# CURL output block #}
                 {% if curl_info and curl_info.headers %}
+                    <!-- CURL output lines -->
                     <div style="background:#f9fafc; border-radius:4px; padding:0.5em; font-size:0.97em; color:#333; width:100%; box-sizing:border-box;">
                         {% for line in curl_info.headers.split('\n') %}
+                            <!-- Individual CURL header line -->
                             <div class="dns-output" style="white-space:nowrap; overflow-x:hidden; text-overflow:ellipsis;">{{ line }}</div>
                         {% endfor %}
                     </div>
                 {% else %}
+                    <!-- No CURL info message -->
                     <div class="text-muted">No CURL info yet.</div>
                 {% endif %}
             </div>
         </div>
-        <div class="panel">
+    <!-- Analysis Panel -->
+    <div class="panel">
             <div class="panel-header analysis">Analysis</div>
             <div class="panel-body">
-                <div class="text-muted">Analysis and conclusions will appear here.</div>
+                {# Analysis summary block #}
+                {% if has_ipv6 or has_dnssec %}
+                    {# Analysis summary title logic #}
+                    {% if has_ipv6 and has_dnssec %}
+                        {% set analysis_title = 'IPv6 & DNSSEC' %}
+                    {% elif has_ipv6 %}
+                        {% set analysis_title = 'IPv6 present' %}
+                    {% elif has_dnssec %}
+                        {% set analysis_title = 'DNSSEC present' %}
+                    {% endif %}
+                    <details style="margin-top:0.5em;">
+                        <summary style="font-size:1.08em; font-weight:500; cursor:pointer; color:#222; padding:0.2em 0;">{{ analysis_title }}</summary>
+                        <div style="padding:0.1em 0.2em;">
+                            {% for item in analysis_dns %}
+                                <!-- Individual analysis output line -->
+                                <div class="dns-output" style="margin-bottom:0.1em; padding:0; color:#222;">
+                                    - {{ item }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </details>
+                {% endif %}
             </div>
         </div>
     </div>
