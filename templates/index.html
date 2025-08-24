@@ -6,24 +6,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<!-- Main container for Domain Inspector UI -->
+<!--
+Domain Inspector Main UI Container
+----------------------------------
+This section wraps the entire app interface, including the title, input form, and all result panels.
+It provides a single-page dashboard for users to inspect domains and IPv4 addresses.
+-->
 <div class="container">
-    <!-- App Title -->
-    <div class="title">Domain Inspector</div>
-    <!-- Domain input form -->
+    <div class="title" style="text-align:center;">Domain Inspector</div>
+    <!-- Domain Input Form -->
     <form method="post">
-    <div class="input-row">
+        <div class="input-row">
             <input type="text" id="domain" name="domain" placeholder="example.com or 8.8.8.8" value="{{ domain if domain else '' }}">
             <button type="submit">Inspect</button>
         </div>
     </form>
-    <!-- Panels row: DNS, WHOIS, CURL, Analysis -->
+    <!-- Panels Row -->
     <div class="panels-row">
-    <!-- DNS Info Panel -->
-    <div class="panel">
+        <!-- DNS Info Panel -->
+        <div class="panel">
             <div class="panel-header dns">DNS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {# DNS info table #}
+                {# DNS Info Table #}
                 {% if domain_info and domain_info.dns %}
                 <table style="width:100%; border-collapse:collapse; font-size:0.89em;">
                     <tbody>
@@ -42,36 +46,10 @@
                                 {% endif %}
                             </td>
                         </tr>
-                        <!-- DNS WWW A Record Row -->
-                        <tr>
-                            <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">WWW</td>
-                            <td style="padding: 0.25em 1.2em; vertical-align: top;">
-                                {% if domain_info.dns.WWW_A and domain_info.dns.WWW_A|length > 0 %}
-                                    <div>
-                                        {% for ip in domain_info.dns.WWW_A[:4] %}
-                                            <div class="dns-output" style="white-space:nowrap;">{{ ip }}</div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <span class="dns-output">No WWW A records found</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <!-- DNS IPv6 Row -->
-                        <tr>
-                            <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">IPv6</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
-                                {% if domain_info.dns.AAAA and domain_info.dns.AAAA|length > 0 %}
-                                    <span class="dns-output">{{ domain_info.dns.AAAA | join(' ') }}</span>
-                                {% else %}
-                                    <span class="dns-output">No IPv6 Found</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <!-- DNS TXT Row -->
+                        <!-- DNS TXT Record Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">TXT</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 1.2em; vertical-align: top;">
                                 {% if domain_info.dns.TXT and domain_info.dns.TXT|length > 0 %}
                                     <div class="long-txt-record">
                                         {% for txt in domain_info.dns.TXT %}
@@ -89,7 +67,7 @@
                         <!-- DNS MX Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top; white-space:nowrap;">MX</td>
-                                <td style="padding: 0.25em 1.2em;">
+                            <td style="padding: 0.25em 1.2em;">
                                 {% if domain_info.dns.MX and domain_info.dns.MX|length > 0 %}
                                     <div>
                                         {% for mx in domain_info.dns.MX %}
@@ -104,7 +82,7 @@
                         <!-- DNS NS Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">NS</td>
-                                <td style="padding: 0.25em 1.2em; vertical-align: top;">
+                            <td style="padding: 0.25em 1.2em; vertical-align: top;">
                                 {% if domain_info.dns.NS and domain_info.dns.NS|length > 0 %}
                                     <div>
                                         {% for ns in domain_info.dns.NS %}
@@ -119,7 +97,7 @@
                         <!-- DNSSEC Row -->
                         <tr>
                             <td class="dns-record-label" style="width: 95px; padding: 0.25em 0.4em; font-weight: normal; vertical-align: top;">DNSSEC</td>
-                                <td style="word-break:break-all; padding: 0.25em 1.2em;">
+                            <td style="word-break:break-all; padding: 0.25em 1.2em;">
                                 {% if domain_info.dns.dnssec %}
                                     <span class="dns-output">Enabled</span>
                                 {% else %}
@@ -129,21 +107,20 @@
                         </tr>
                     </tbody>
                 </table>
-            {% else %}
-                <!-- No DNS info message -->
-                <div class="text-muted">No DNS info yet.</div>
-            {% endif %}
+                {% endif %}
+                {% if not (domain_info and domain_info.dns) %}
+                    <!-- No DNS info message -->
+                    <div class="text-muted">No DNS info yet.</div>
+                {% endif %}
             </div>
         </div>
-    <!-- WHOIS Info Panel -->
-    <div class="panel">
+        <!-- WHOIS Info Panel -->
+        <div class="panel">
             <div class="panel-header whois">WHOIS Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {# WHOIS info block #}
+                {# WHOIS Info Block #}
                 {% if domain_info and domain_info.whois %}
-                    <!-- Registrar info -->
                     <div class="dns-output" style="margin-bottom:1em;">Registrar: {{ domain_info.whois.registrar }}</div>
-                    <!-- Nameservers info -->
                     {% if domain_info.whois.nameservers %}
                         <div class="dns-output" style="margin-bottom:1em;">Nameservers:
                             {% for ns in domain_info.whois.nameservers %}
@@ -151,17 +128,13 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                    {# Hold status logic #}
                     {% set hold_statuses = domain_info.whois.statuses | select('in', ['clientHold', 'serverHold']) | list %}
-                    <!-- Domain hold status -->
                     {% if hold_statuses and hold_statuses|length > 0 %}
                         <div class="dns-output" style="color:#d32f2f;">Status: {{ hold_statuses | join(', ') }}</div>
                     {% endif %}
-                    <!-- Expired domain info -->
                     {% if domain_info.whois.expiration and domain_info.whois.expired %}
                         <div class="dns-output" style="color:#d32f2f;">Expired: {{ domain_info.whois.expiration }}</div>
                     {% endif %}
-                    <!-- Raw WHOIS details -->
                     {% if domain_info.whois.raw %}
                         <details style="margin-top:1.5em;">
                             <summary style="font-size:1.08em; font-weight:500; cursor:pointer; color:#222; padding:0.2em 0;">Raw WHOIS</summary>
@@ -171,37 +144,32 @@
                         </details>
                     {% endif %}
                 {% else %}
-                    <!-- No WHOIS info message -->
                     <div class="text-muted">No WHOIS info yet.</div>
                 {% endif %}
             </div>
         </div>
-    <!-- CURL Info Panel -->
-    <div class="panel">
+        <!-- CURL Info Panel -->
+        <div class="panel">
             <div class="panel-header curl">CURL GET Info{% if domain %} for <span class="checked-domain-name">{{ domain }}</span>{% endif %}</div>
             <div class="panel-body">
-                {# CURL output block #}
+                {# CURL Output Block #}
                 {% if curl_info and curl_info.headers %}
-                    <!-- CURL output lines -->
                     <div style="background:#f9fafc; border-radius:4px; padding:0.5em; font-size:0.97em; color:#333; width:100%; box-sizing:border-box;">
                         {% for line in curl_info.headers.split('\n') %}
-                            <!-- Individual CURL header line -->
                             <div class="dns-output" style="white-space:nowrap; overflow-x:hidden; text-overflow:ellipsis;">{{ line }}</div>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <!-- No CURL info message -->
                     <div class="text-muted">No CURL info yet.</div>
                 {% endif %}
             </div>
         </div>
-    <!-- Analysis Panel -->
-    <div class="panel">
+        <!-- Analysis Panel -->
+        <div class="panel">
             <div class="panel-header analysis">Analysis</div>
             <div class="panel-body">
-                {# Analysis summary block #}
+                {# Analysis Summary Block #}
                 {% if has_ipv6 or has_dnssec %}
-                    {# Analysis summary title logic #}
                     {% if has_ipv6 and has_dnssec %}
                         {% set analysis_title = 'IPv6 & DNSSEC' %}
                     {% elif has_ipv6 %}
@@ -213,7 +181,6 @@
                         <summary style="font-size:1.08em; font-weight:500; cursor:pointer; color:#222; padding:0.2em 0;">{{ analysis_title }}</summary>
                         <div style="padding:0.1em 0.2em;">
                             {% for item in analysis_dns %}
-                                <!-- Individual analysis output line -->
                                 <div class="dns-output" style="margin-bottom:0.1em; padding:0; color:#222;">
                                     - {{ item }}
                                 </div>
@@ -221,6 +188,33 @@
                         </div>
                     </details>
                 {% endif %}
+            </div>
+        </div>
+    </div> <!-- End panels-row -->
+
+    <!-- Visitor Info Panel: centered below all other panels -->
+    <div style="display:flex; justify-content:center; margin-top:2em;">
+        <div class="panel" style="min-width:320px; max-width:410px; margin:auto;">
+            <div class="panel-header" style="text-align:center; font-size:1.13em; font-weight:600;">
+                Visitor Info
+            </div>
+            <div class="panel-body" style="padding:1em;">
+                <div>
+                    <strong>IP Address:</strong>
+                    <span class="dns-output">{{ visitor_info.ip }}</span>
+                </div>
+                <div style="margin-top:0.8em;">
+                    <strong>User Agent:</strong>
+                    <span class="dns-output" style="word-break:break-all;">{{ visitor_info.user_agent }}</span>
+                </div>
+                <div style="margin-top:0.8em;">
+                    <strong>Provider:</strong>
+                    <span class="dns-output">{{ visitor_info.provider }}</span>
+                </div>
+                <div style="margin-top:0.8em;">
+                    <strong>Location:</strong>
+                    <span class="dns-output">{{ visitor_info.location }}</span>
+                </div>
             </div>
         </div>
     </div>

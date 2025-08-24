@@ -6,6 +6,7 @@ import re
 import dns.resolver
 import whois
 import subprocess
+import requests
 
 app = Flask(__name__)
 
@@ -103,14 +104,14 @@ def get_whois_info(domain):
                 expired = exp_dt < datetime.now()
             except Exception:
                 expired = False
-            whois_info = {
-                "registrar": w.registrar if w.registrar else "Unknown",
-                "expiration": str(expiration) if expiration else "Unknown",
-                "statuses": status_list,
-                "nameservers": nameservers,
-                "expired": expired,
-                "raw": str(w.text) if hasattr(w, "text") and w.text else "",
-            }
+        whois_info = {
+            "registrar": w.registrar if w.registrar else "Unknown",
+            "expiration": str(expiration) if expiration else "Unknown",
+            "statuses": status_list,
+            "nameservers": nameservers,
+            "expired": expired,
+            "raw": str(w.text) if hasattr(w, "text") and w.text else "",
+        }
     except Exception:
         whois_info = {
             "registrar": "Unknown",
@@ -153,6 +154,26 @@ def analyze_headers(headers):
             analysis.append(f"Cache-Control: {cc.group(1).strip()}")
     return analysis
 
+def get_visitor_info(flask_request):
+    ip = flask_request.headers.get('X-Forwarded-For', flask_request.remote_addr)
+    ua = flask_request.headers.get("User-Agent", "Unknown")
+    info = {
+        "ip": ip,
+        "user_agent": ua,
+        "provider": "Unknown",
+        "location": "Unknown"
+    }
+    try:
+        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,regionName,city,org,query", timeout=3)
+        data = r.json()
+        if data.get("status") == "success":
+            info["provider"] = data.get("org", "Unknown")
+            location = ", ".join([data.get("city", ""), data.get("regionName", ""), data.get("country", "")]).strip(", ")
+            info["location"] = location if location else "Unknown"
+    except Exception as e:
+        pass
+    return info
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     domain_info = None
@@ -188,6 +209,7 @@ def index():
                     "headers": headers,
                     "analysis": analysis,
                 }
+    visitor_info = get_visitor_info(request)
     return render_template("index.html",
         domain_info=domain_info,
         curl_info=curl_info,
@@ -195,7 +217,8 @@ def index():
         error_msg=error_msg,
         analysis_dns=analysis_dns,
         has_ipv6=has_ipv6,
-        has_dnssec=has_dnssec
+        has_dnssec=has_dnssec,
+        visitor_info=visitor_info
     )
 
 if __name__ == "__main__":
